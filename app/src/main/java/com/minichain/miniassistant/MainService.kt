@@ -4,6 +4,8 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 
 class MainService : Service() {
 
@@ -11,7 +13,8 @@ class MainService : Service() {
     const val CHANNEL_ID: String = "notification_channel"
   }
 
-  private val picovoiceService = PicovoiceService(this)
+  private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
+  private val picovoiceService = PicovoiceService(this, scope)
 
   enum class Action {
     Start, Stop
