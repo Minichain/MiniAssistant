@@ -3,7 +3,6 @@ package com.minichain.miniassistant
 import android.Manifest
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -76,7 +75,6 @@ class MainActivity : ComponentActivity() {
               .filterIsInstance<Event.ConsoleEvent>()
               .onEach {
                 println("MAIN_ACTIVITY: ConsoleEvent: ${it.message}")
-                Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
                 val newList = consoleEventsList.toMutableList()
                 newList.add(it)
                 consoleEventsList = newList

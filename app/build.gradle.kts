@@ -55,6 +55,7 @@ dependencies {
   implementation(libs.androidx.material3)
 
   implementation(libs.picovoice.porcupine)
+  implementation(libs.picovoice.cheetah)
 
   testImplementation(libs.junit)
   androidTestImplementation(libs.androidx.junit)
