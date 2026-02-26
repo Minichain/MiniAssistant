@@ -1,9 +1,10 @@
-package com.minichain.miniassistant
+package com.minichain.miniassistant.assistant
 
 import ai.picovoice.porcupine.PorcupineManager
 import ai.picovoice.porcupine.PorcupineManagerCallback
 import android.content.Context
 import android.util.Log
+import com.minichain.miniassistant.BuildConfig
 import kotlinx.coroutines.CoroutineScope
 
 class WakeWordService(

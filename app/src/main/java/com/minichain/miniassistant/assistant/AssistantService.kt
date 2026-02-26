@@ -1,7 +1,9 @@
-package com.minichain.miniassistant
+package com.minichain.miniassistant.assistant
 
 import android.content.Context
 import android.util.Log
+import com.minichain.miniassistant.bridge.DataBridge
+import com.minichain.miniassistant.bridge.Event
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -21,7 +23,28 @@ class AssistantService(
     onWakeWordDetected = {
       scope.launch {
         DataBridge.events.emit(Event.ConsoleEvent("WAKE WORD: \"Hey, Mini!\" detected"))
-        assistantState.emit(AssistantState.SpeechToText)
+        assistantState.emit(AssistantState.SpeechToIntent)
+      }
+    }
+  )
+
+  private val speechToIntentService = SpeechToIntentService(
+    context = context,
+    scope = scope,
+    onIntentDetected = { intent ->
+      scope.launch {
+        DataBridge.events.emit(Event.ConsoleEvent("INTENT: $intent"))
+        when (intent) {
+          Intent.StartVideo -> {
+            assistantState.emit(AssistantState.WakeWord)
+          }
+          Intent.StopVideo -> {
+            assistantState.emit(AssistantState.WakeWord)
+          }
+          Intent.TakeNotes -> {
+            assistantState.emit(AssistantState.SpeechToText)
+          }
+        }
       }
     }
   )
@@ -45,10 +68,17 @@ class AssistantService(
         when (state) {
           AssistantState.WakeWord -> {
             speechToTextService.stop()
+            speechToIntentService.stop()
             wakeWordService.start()
+          }
+          AssistantState.SpeechToIntent -> {
+            wakeWordService.stop()
+            speechToTextService.stop()
+            speechToIntentService.start()
           }
           AssistantState.SpeechToText -> {
             wakeWordService.stop()
+            speechToIntentService.stop()
             speechToTextService.start()
           }
         }
@@ -58,6 +88,7 @@ class AssistantService(
 
   private enum class AssistantState {
     WakeWord,
+    SpeechToIntent,
     SpeechToText
   }
 }

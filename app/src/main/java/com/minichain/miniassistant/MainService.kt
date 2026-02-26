@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import com.minichain.miniassistant.assistant.AssistantService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
@@ -15,6 +16,7 @@ class MainService : Service() {
   }
 
   private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
+  private val assistantService = AssistantService(this, scope)
 
   enum class Action {
     Start, Stop
@@ -42,7 +44,7 @@ class MainService : Service() {
       .build()
     startForeground(1, notification)
 
-    AssistantService(this, scope).start()
+    assistantService.start()
   }
 
   private fun stop() {

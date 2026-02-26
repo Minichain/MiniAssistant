@@ -1,10 +1,11 @@
-package com.minichain.miniassistant
+package com.minichain.miniassistant.assistant
 
 import ai.picovoice.cheetah.Cheetah
 import android.content.Context
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
+import com.minichain.miniassistant.BuildConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 

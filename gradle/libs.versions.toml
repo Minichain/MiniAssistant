@@ -15,6 +15,7 @@ espressoCore = "3.7.0"
 
 picovoice-porcupine = "4.0.0"
 picovoice-cheetah = "3.0.0"
+picovoice-rhino = "4.0.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidx-core" }
@@ -34,6 +35,7 @@ junit = { group = "junit", name = "junit", version.ref = "junit" }
 
 picovoice-porcupine = { group = "ai.picovoice", name = "porcupine-android", version.ref = "picovoice-porcupine" }
 picovoice-cheetah = { group = "ai.picovoice", name = "cheetah-android", version.ref = "picovoice-cheetah" }
+picovoice-rhino = { group = "ai.picovoice", name = "rhino-android", version.ref = "picovoice-rhino" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
