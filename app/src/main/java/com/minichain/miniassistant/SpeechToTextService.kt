@@ -10,7 +10,8 @@ import kotlinx.coroutines.launch
 
 class SpeechToTextService(
   private val context: Context,
-  private val scope: CoroutineScope
+  private val scope: CoroutineScope,
+  val onTranscriptionDone: (text: String) -> Unit
 ) {
 
   private val cheetah by lazy {
@@ -35,7 +36,7 @@ class SpeechToTextService(
       audioRecord.startRecording()
       isRecording = true
 
-      var transcript = StringBuilder()
+      val transcript = StringBuilder()
 
       while (isRecording) {
         audioRecord.read(audioBuffer, 0, audioBuffer.size)
@@ -45,8 +46,7 @@ class SpeechToTextService(
         if (transcriptObj.isEndpoint) {
           val finalTranscriptObj = cheetah.flush()
           transcript.append(finalTranscriptObj.transcript)
-          DataBridge.events.emit(Event.ConsoleEvent(transcript.toString()))
-          transcript = StringBuilder()
+          onTranscriptionDone(transcript.toString())
         }
       }
     }

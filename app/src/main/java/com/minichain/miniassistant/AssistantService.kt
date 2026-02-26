@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class AssistantService(
-  private val context: Context,
+  context: Context,
   private val scope: CoroutineScope
 ) {
 
@@ -20,7 +20,7 @@ class AssistantService(
     scope = scope,
     onWakeWordDetected = {
       scope.launch {
-        DataBridge.events.emit(Event.ConsoleEvent("Wake word \"Hey, Mini!\" detected"))
+        DataBridge.events.emit(Event.ConsoleEvent("WAKE WORD: \"Hey, Mini!\" detected"))
         assistantState.emit(AssistantState.SpeechToText)
       }
     }
@@ -28,7 +28,13 @@ class AssistantService(
 
   private val speechToTextService = SpeechToTextService(
     context = context,
-    scope = scope
+    scope = scope,
+    onTranscriptionDone = { text ->
+      scope.launch {
+        DataBridge.events.emit(Event.ConsoleEvent("SPEECH-TO-TEXT: $text"))
+        assistantState.emit(AssistantState.WakeWord)
+      }
+    }
   )
 
   fun start() {
