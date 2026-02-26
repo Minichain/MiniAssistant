@@ -11,11 +11,19 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class AssistantService(
-  context: Context,
+  private val context: Context,
   private val scope: CoroutineScope
 ) {
 
   private val assistantState = MutableStateFlow(AssistantState.WakeWord)
+
+  private lateinit var tonePlayer: TonePlayer
+  private lateinit var vibrator: Vibrator
+
+  private val textToSpeechService = TextToSpeechService(
+    context = context,
+    scope = scope
+  )
 
   private var wakeWordService: WakeWordService = WakeWordService(
     context = context,
@@ -23,6 +31,7 @@ class AssistantService(
     onWakeWordDetected = {
       scope.launch {
         DataBridge.events.emit(Event.ConsoleEvent("WAKE WORD: \"Hey, Mini!\" detected"))
+        tonePlayer.play(Tone.AssistantStarted)
         assistantState.emit(AssistantState.SpeechToIntent)
       }
     }
@@ -36,13 +45,23 @@ class AssistantService(
         DataBridge.events.emit(Event.ConsoleEvent("INTENT: $intent"))
         when (intent) {
           Intent.StartVideo -> {
+            DataBridge.events.emit(Event.TextToSpeechEvent("Starting video"))
             assistantState.emit(AssistantState.WakeWord)
+            tonePlayer.play(Tone.AssistantStopped)
           }
           Intent.StopVideo -> {
+            DataBridge.events.emit(Event.TextToSpeechEvent("Stopping video"))
             assistantState.emit(AssistantState.WakeWord)
+            tonePlayer.play(Tone.AssistantStopped)
           }
           Intent.TakeNotes -> {
+            DataBridge.events.emit(Event.TextToSpeechEvent("Taking notes"))
             assistantState.emit(AssistantState.SpeechToText)
+          }
+          Intent.Unknown -> {
+            DataBridge.events.emit(Event.TextToSpeechEvent("Sorry, I couldn't understand"))
+            assistantState.emit(AssistantState.WakeWord)
+            tonePlayer.play(Tone.AssistantStopped)
           }
         }
       }
@@ -53,6 +72,7 @@ class AssistantService(
     context = context,
     scope = scope,
     onTranscriptionDone = { text ->
+      tonePlayer.play(Tone.AssistantStopped)
       scope.launch {
         DataBridge.events.emit(Event.ConsoleEvent("SPEECH-TO-TEXT: $text"))
         assistantState.emit(AssistantState.WakeWord)
@@ -61,6 +81,9 @@ class AssistantService(
   )
 
   fun start() {
+    tonePlayer = TonePlayer(context)
+    vibrator = Vibrator(context)
+    textToSpeechService.start()
     assistantState
       .onEach { state ->
         Log.d("ASSISTANT_SERVICE", "state: $state")

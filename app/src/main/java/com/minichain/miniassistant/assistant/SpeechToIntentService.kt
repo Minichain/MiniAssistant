@@ -23,11 +23,11 @@ class SpeechToIntentService(
 
   private val rhinoManagerCallback by lazy {
     RhinoManagerCallback { inference: RhinoInference ->
-      Log.d("ASSISTANT_SERVICE", "inference: $inference")
+      Log.d("ASSISTANT_SERVICE", "inference intent: ${inference.intent}")
       if (inference.isUnderstood) {
         onIntentDetected(Intent.valueOf(inference.intent))
       } else {
-        //TODO
+        onIntentDetected(Intent.Unknown)
       }
     }
   }

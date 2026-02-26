@@ -1,7 +1,10 @@
 package com.minichain.miniassistant
 
 import android.Manifest
+import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -20,90 +23,105 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.minichain.miniassistant.bridge.DataBridge
 import com.minichain.miniassistant.bridge.Event
 import com.minichain.miniassistant.ui.theme.MiniAssistantTheme
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     enableEdgeToEdge()
+    setContent {
 
+      HandlePermissions(this) {
+        startMainService()
+      }
+
+      MiniAssistantTheme {
+        Scaffold(
+          modifier = Modifier.fillMaxSize()
+        ) { innerPadding ->
+          MainComponent(
+            modifier = Modifier.padding(innerPadding)
+          )
+        }
+      }
+    }
+  }
+
+  @Composable
+  private fun MainComponent(
+    modifier: Modifier
+  ) {
+    var consoleEventsList: List<Event.ConsoleEvent> by remember { mutableStateOf(emptyList()) }
+    Box(
+      modifier = modifier.fillMaxSize()
+    ) {
+      LazyColumn(
+        modifier = Modifier
+          .fillMaxSize()
+          .padding(8.dp)
+      ) {
+        consoleEventsList.forEach { consoleEvent ->
+          item {
+            Text(consoleEvent.message)
+          }
+        }
+      }
+    }
+
+    LaunchedEffect(Unit) {
+      DataBridge.events
+        .filterIsInstance<Event.ConsoleEvent>()
+        .onEach {
+          println("MAIN_ACTIVITY: ConsoleEvent: ${it.message}")
+          val newList = consoleEventsList.toMutableList()
+          newList.add(it)
+          consoleEventsList = newList
+        }
+        .launchIn(this)
+    }
+  }
+
+  @Composable
+  private fun HandlePermissions(
+    activity: Activity,
+    onAllPermissionsGranted: () -> Unit
+  ) {
+    val context = LocalContext.current
     ActivityCompat.requestPermissions(
-      this,
+      activity,
       arrayOf(
         Manifest.permission.POST_NOTIFICATIONS,
         Manifest.permission.RECORD_AUDIO
       ),
       0
     )
-
-    setContent {
-
-      Intent(applicationContext, MainService::class.java).also {
-        it.action = MainService.Action.Start.toString()
-        startService(it)
-      }
-
-      MiniAssistantTheme {
-
-        val context = LocalContext.current
-        var consoleEventsList: List<Event.ConsoleEvent> by remember { mutableStateOf(emptyList()) }
-
-        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-          Box(
-            modifier = Modifier
-              .fillMaxSize()
-              .padding(innerPadding)
-          ) {
-            LazyColumn(
-              modifier = Modifier
-                .fillMaxSize()
-                .padding(8.dp)
-            ) {
-              consoleEventsList.forEach { consoleEvent ->
-                item {
-                  Text(consoleEvent.message)
-                }
-              }
-            }
-          }
-
-          LaunchedEffect(Unit) {
-            DataBridge.events
-              .filterIsInstance<Event.ConsoleEvent>()
-              .onEach {
-                println("MAIN_ACTIVITY: ConsoleEvent: ${it.message}")
-                val newList = consoleEventsList.toMutableList()
-                newList.add(it)
-                consoleEventsList = newList
-              }
-              .launchIn(this)
-          }
+    LaunchedEffect(Unit) {
+      launch {
+        while (!permissionsGranted(context)) {
+          // Do nothing...
         }
+        onAllPermissionsGranted()
       }
     }
   }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-  Text(
-    text = "Hello $name!",
-    modifier = modifier
-  )
-}
+  private fun permissionsGranted(context: Context): Boolean =
+    ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-  MiniAssistantTheme {
-    Greeting("Android")
+  private fun startMainService() {
+    Intent(applicationContext, MainService::class.java).also {
+      it.action = MainService.Action.Start.toString()
+      startService(it)
+    }
   }
 }
