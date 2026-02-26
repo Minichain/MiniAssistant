@@ -21,6 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import com.minichain.miniassistant.ui.theme.MiniAssistantTheme
 import kotlinx.coroutines.flow.filterIsInstance
@@ -60,7 +61,9 @@ class MainActivity : ComponentActivity() {
               .padding(innerPadding)
           ) {
             LazyColumn(
-              modifier = Modifier.fillMaxSize()
+              modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp)
             ) {
               consoleEventsList.forEach { consoleEvent ->
                 item {
