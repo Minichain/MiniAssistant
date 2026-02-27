@@ -1,6 +1,7 @@
 package com.minichain.miniassistant.assistant
 
 import android.content.Context
+import android.media.AudioAttributes
 import android.media.AudioManager
 import android.speech.tts.TextToSpeech
 import android.util.Log
@@ -29,6 +30,12 @@ class TextToSpeechService(
       Log.d("TEXT_TO_SPEECH_SERVICE", "Text to speech status: $status")
     }
     audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    textToSpeech.setAudioAttributes(
+      AudioAttributes.Builder()
+        .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+        .build()
+    )
     textToSpeech.setLanguage(Locale.ENGLISH)
     scope.launch {
       DataBridge.events

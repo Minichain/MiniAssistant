@@ -43,27 +43,7 @@ class AssistantService(
     onIntentDetected = { intent ->
       scope.launch {
         DataBridge.events.emit(Event.ConsoleEvent("INTENT: $intent"))
-        when (intent) {
-          Intent.StartVideo -> {
-            DataBridge.events.emit(Event.TextToSpeechEvent("Starting video"))
-            assistantState.emit(AssistantState.WakeWord)
-            tonePlayer.play(Tone.AssistantStopped)
-          }
-          Intent.StopVideo -> {
-            DataBridge.events.emit(Event.TextToSpeechEvent("Stopping video"))
-            assistantState.emit(AssistantState.WakeWord)
-            tonePlayer.play(Tone.AssistantStopped)
-          }
-          Intent.TakeNotes -> {
-            DataBridge.events.emit(Event.TextToSpeechEvent("Taking notes"))
-            assistantState.emit(AssistantState.SpeechToText)
-          }
-          Intent.Unknown -> {
-            DataBridge.events.emit(Event.TextToSpeechEvent("Sorry, I couldn't understand"))
-            assistantState.emit(AssistantState.WakeWord)
-            tonePlayer.play(Tone.AssistantStopped)
-          }
-        }
+        processIntent(intent)
       }
     }
   )
@@ -75,6 +55,7 @@ class AssistantService(
       tonePlayer.play(Tone.AssistantStopped)
       scope.launch {
         DataBridge.events.emit(Event.ConsoleEvent("SPEECH-TO-TEXT: $text"))
+        DataBridge.events.emit(Event.NoteTakenEvent(text))
         assistantState.emit(AssistantState.WakeWord)
       }
     }
@@ -87,6 +68,7 @@ class AssistantService(
     assistantState
       .onEach { state ->
         Log.d("ASSISTANT_SERVICE", "state: $state")
+        DataBridge.events.emit(Event.AssistantStateUpdate(state))
         DataBridge.events.emit(Event.ConsoleEvent("Assistant state: $state"))
         when (state) {
           AssistantState.WakeWord -> {
@@ -109,9 +91,35 @@ class AssistantService(
       .launchIn(scope)
   }
 
-  private enum class AssistantState {
-    WakeWord,
-    SpeechToIntent,
-    SpeechToText
+  private fun processIntent(intent: Intent) {
+    when (intent) {
+      Intent.StartVideo -> {
+        scope.launch {
+          DataBridge.events.emit(Event.TextToSpeechEvent("Starting video"))
+          assistantState.emit(AssistantState.WakeWord)
+        }
+        tonePlayer.play(Tone.AssistantStopped)
+      }
+      Intent.StopVideo -> {
+        scope.launch {
+          DataBridge.events.emit(Event.TextToSpeechEvent("Stopping video"))
+          assistantState.emit(AssistantState.WakeWord)
+        }
+        tonePlayer.play(Tone.AssistantStopped)
+      }
+      Intent.TakeNotes -> {
+        scope.launch {
+          DataBridge.events.emit(Event.TextToSpeechEvent("Taking notes"))
+          assistantState.emit(AssistantState.SpeechToText)
+        }
+      }
+      Intent.Unknown -> {
+        scope.launch {
+          DataBridge.events.emit(Event.TextToSpeechEvent("Sorry, I couldn't understand"))
+          assistantState.emit(AssistantState.WakeWord)
+        }
+        tonePlayer.play(Tone.AssistantStopped)
+      }
+    }
   }
 }
