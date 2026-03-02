@@ -2,6 +2,10 @@ package com.minichain.miniassistant.assistant
 
 import android.content.Context
 import android.util.Log
+import com.minichain.miniassistant.assistant.speech_to_intent.Intent
+import com.minichain.miniassistant.assistant.speech_to_intent.SpeechToIntentService
+import com.minichain.miniassistant.assistant.speech_to_text.SpeechToTextService
+import com.minichain.miniassistant.assistant.wake_word.WakeWordService
 import com.minichain.miniassistant.bridge.DataBridge
 import com.minichain.miniassistant.bridge.Event
 import kotlinx.coroutines.CoroutineScope

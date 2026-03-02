@@ -1,4 +1,4 @@
-package com.minichain.miniassistant.assistant
+package com.minichain.miniassistant.assistant.speech_to_text
 
 import ai.picovoice.cheetah.Cheetah
 import android.content.Context

@@ -1,4 +1,4 @@
-package com.minichain.miniassistant.assistant
+package com.minichain.miniassistant.assistant.wake_word
 
 import ai.picovoice.porcupine.PorcupineManager
 import ai.picovoice.porcupine.PorcupineManagerCallback

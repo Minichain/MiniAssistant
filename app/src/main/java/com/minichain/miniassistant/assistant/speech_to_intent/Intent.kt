@@ -1,4 +1,4 @@
-package com.minichain.miniassistant.assistant
+package com.minichain.miniassistant.assistant.speech_to_intent
 
 enum class Intent {
   StartVideo,

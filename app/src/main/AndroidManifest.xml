@@ -22,6 +22,8 @@
     android:theme="@style/Theme.MiniAssistant"
     tools:targetApi="31">
 
+    <profileable android:shell="true" />
+
     <activity
       android:name=".MainActivity"
       android:exported="true"

@@ -1,4 +1,4 @@
-package com.minichain.miniassistant.assistant
+package com.minichain.miniassistant.assistant.speech_to_intent
 
 import ai.picovoice.rhino.RhinoInference
 import ai.picovoice.rhino.RhinoManager
