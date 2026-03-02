@@ -54,6 +54,7 @@ dependencies {
   implementation(libs.androidx.ui.tooling.preview)
   implementation(libs.androidx.material3)
 
+  implementation(libs.onnx)
   implementation(libs.picovoice.porcupine)
   implementation(libs.picovoice.cheetah)
   implementation(libs.picovoice.rhino)

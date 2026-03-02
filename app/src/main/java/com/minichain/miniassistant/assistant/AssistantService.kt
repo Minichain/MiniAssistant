@@ -34,7 +34,7 @@ class AssistantService(
     scope = scope,
     onWakeWordDetected = {
       scope.launch {
-        DataBridge.events.emit(Event.ConsoleEvent("WAKE WORD: \"Hey, Mini!\" detected"))
+        DataBridge.events.emit(Event.ConsoleEvent("WAKE WORD detected"))
         tonePlayer.play(Tone.AssistantStarted)
         assistantState.emit(AssistantState.SpeechToIntent)
       }

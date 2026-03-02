@@ -13,27 +13,47 @@ class WakeWordService(
   val onWakeWordDetected: () -> Unit
 ) {
 
-  private val porcupineManager by lazy {
-    PorcupineManager.Builder()
-      .setAccessKey(BuildConfig.PICOVOICE_API_KEY)
-      .setKeywordPaths(arrayOf("Hey-Mini_en_android_v4_0_0.ppn")) //File in ../src/main/assets folder
-      .build(context, wakeWordCallback)
+//  private val porcupineManager by lazy {
+//    PorcupineManager.Builder()
+//      .setAccessKey(BuildConfig.PICOVOICE_API_KEY)
+//      .setKeywordPaths(arrayOf("Hey-Mini_en_android_v4_0_0.ppn")) //File in ../src/main/assets folder
+//      .build(context, wakeWordCallback)
+//  }
+//
+//  private val wakeWordCallback by lazy {
+//    PorcupineManagerCallback { keywordIndex ->
+//      if (keywordIndex == 0) {
+//        Log.d("WAKE_WORD_SERVICE", "\"Hey, Mini\" detected!")
+//        onWakeWordDetected()
+//      }
+//    }
+//  }
+
+  private val onnxModelRunner: OnnxModelRunner by lazy {
+    OnnxModelRunner(
+      embeddingModelBytes = context.assets.open("embedding_model.onnx").readBytes(),
+      melSpectrogramBytes = context.assets.open("melspectrogram.onnx").readBytes(),
+      wakeWordModelBytes = context.assets.open("wake_word_model.onnx").readBytes()
+    )
   }
 
-  private val wakeWordCallback by lazy {
-    PorcupineManagerCallback { keywordIndex ->
-      if (keywordIndex == 0) {
-        Log.d("WAKE_WORD_SERVICE", "\"Hey, Mini\" detected!")
+  private val openWakeWordAudioRecorder: OpenWakeWordAudioRecorder by lazy {
+    OpenWakeWordAudioRecorder(
+      model = OpenWakeWordModel(onnxModelRunner),
+      scope = scope,
+      onWakeWordDetected = {
         onWakeWordDetected()
       }
-    }
+    )
   }
 
   fun start() {
-    porcupineManager.start()
+    openWakeWordAudioRecorder.start()
+//    porcupineManager.start()
   }
 
   fun stop() {
-    porcupineManager.stop()
+    openWakeWordAudioRecorder.stopRecording()
+//    porcupineManager.stop()
   }
 }
