@@ -9,8 +9,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.rememberNavController
+import com.minichain.miniassistant.ui.BottomBar
+import com.minichain.miniassistant.navigation.CustomNavigation
+import com.minichain.miniassistant.navigation.MainPage
+import com.minichain.miniassistant.navigation.MainPageScreen
+import com.minichain.miniassistant.navigation.mainActivityDestinations
 import com.minichain.miniassistant.permissions.PermissionsHandler
-import com.minichain.miniassistant.ui.MainComponent
+import com.minichain.miniassistant.ui.TopBar
 import com.minichain.miniassistant.ui.theme.MiniAssistantTheme
 
 class MainActivity : ComponentActivity() {
@@ -26,13 +34,22 @@ class MainActivity : ComponentActivity() {
         }
       )
 
+      val navController: NavHostController = rememberNavController()
+      val navigation: CustomNavigation = { action -> navController.action() }
+
       MiniAssistantTheme {
         Scaffold(
-          modifier = Modifier.fillMaxSize()
+          modifier = Modifier.fillMaxSize(),
+          topBar = { TopBar() },
+          bottomBar = { BottomBar(navigation, navController) }
         ) { innerPadding ->
-          MainComponent(
-            modifier = Modifier.padding(innerPadding)
-          )
+          NavHost(
+            modifier = Modifier.padding(innerPadding),
+            navController = navController,
+            startDestination = MainPage(MainPageScreen.Console.toString())
+          ) {
+            mainActivityDestinations(navigation)
+          }
         }
       }
     }
