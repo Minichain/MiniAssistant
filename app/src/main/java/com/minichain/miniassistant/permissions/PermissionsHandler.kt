@@ -21,7 +21,8 @@ fun PermissionsHandler(
     activity,
     arrayOf(
       Manifest.permission.POST_NOTIFICATIONS,
-      Manifest.permission.RECORD_AUDIO
+      Manifest.permission.RECORD_AUDIO,
+      Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
     ),
     0
   )
@@ -36,5 +37,13 @@ fun PermissionsHandler(
 }
 
 private fun permissionsGranted(context: Context): Boolean =
-  ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED &&
-    ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+  isPostNotificationsPermissionGranted(context) && isRecordAudioPermissionGranted(context) && isIgnoreBatteryOptimizationsPermissionGranted(context)
+
+private fun isPostNotificationsPermissionGranted(context: Context): Boolean =
+  ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+
+private fun isRecordAudioPermissionGranted(context: Context): Boolean =
+  ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+
+private fun isIgnoreBatteryOptimizationsPermissionGranted(context: Context): Boolean =
+  ContextCompat.checkSelfPermission(context, Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS) == PackageManager.PERMISSION_GRANTED
