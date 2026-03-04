@@ -5,4 +5,6 @@ import com.minichain.miniassistant.assistant.AssistantState
 sealed class Event {
   data class AssistantStateUpdate(val state: AssistantState) : Event()
   data class TextToSpeechEvent(val text: String) : Event()
+  data object StartVideo : Event()
+  data object StopVideo : Event()
 }

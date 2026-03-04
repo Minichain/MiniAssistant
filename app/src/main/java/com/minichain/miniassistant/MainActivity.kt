@@ -57,7 +57,7 @@ class MainActivity : ComponentActivity() {
 
   private fun startMainService() {
     Intent(applicationContext, MainService::class.java).also {
-      it.action = MainService.Action.Start.toString()
+      it.action = MainService.Action.StartService.toString()
       startService(it)
     }
   }

@@ -11,6 +11,7 @@ import android.os.PowerManager.WakeLock
 import android.util.Log
 import com.minichain.miniassistant.assistant.AssistantService
 import com.minichain.miniassistant.battery.BatteryTrackingService
+import com.minichain.miniassistant.video.VideoService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
@@ -23,14 +24,15 @@ class MainService : Service() {
   }
 
   private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
-  private val assistantService = AssistantService(this, scope)
-  private val batteryTrackingService = BatteryTrackingService(this, scope)
+  private val assistantService: AssistantService by lazy { AssistantService(this, scope) }
+  private val batteryTrackingService: BatteryTrackingService by lazy { BatteryTrackingService(this, scope) }
+  private val videoService: VideoService by lazy { VideoService(this, scope) }
 
   private lateinit var powerManager: PowerManager
   private lateinit var wakeLock: WakeLock
 
   enum class Action {
-    Start, Stop
+    StartService, StopService
   }
 
   override fun onBind(intent: Intent?): IBinder? {
@@ -40,8 +42,8 @@ class MainService : Service() {
   override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
     Log.d("MAIN_SERVICE", "onStartCommand()")
     when (intent?.action) {
-      Action.Start.toString() -> start()
-      Action.Stop.toString() -> stop()
+      Action.StartService.toString() -> start()
+      Action.StopService.toString() -> stop()
     }
     return super.onStartCommand(intent, flags, startId)
   }
@@ -58,6 +60,7 @@ class MainService : Service() {
     }
     assistantService.start()
     batteryTrackingService.start()
+    videoService.start()
   }
 
   private val notificationDismissalReceiver = object : BroadcastReceiver() {

@@ -102,6 +102,7 @@ class AssistantService(
       Intent.StartVideo -> {
         scope.launch {
           DataBridge.events.emit(Event.TextToSpeechEvent("Starting video"))
+          DataBridge.events.emit(Event.StartVideo)
           assistantState.emit(AssistantState.WakeWord)
         }
         tonePlayer.play(Tone.AssistantStopped)
@@ -109,6 +110,7 @@ class AssistantService(
       Intent.StopVideo -> {
         scope.launch {
           DataBridge.events.emit(Event.TextToSpeechEvent("Stopping video"))
+          DataBridge.events.emit(Event.StopVideo)
           assistantState.emit(AssistantState.WakeWord)
         }
         tonePlayer.play(Tone.AssistantStopped)

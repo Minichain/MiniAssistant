@@ -3,12 +3,11 @@ package com.minichain.miniassistant.battery
 import android.content.Context
 import android.os.BatteryManager
 import com.minichain.miniassistant.bridge.DataBridge
+import com.minichain.miniassistant.getFormattedDate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 class BatteryTrackingService(
   private val context: Context,
@@ -35,12 +34,6 @@ class BatteryTrackingService(
         delay(trackingPeriod)
       }
     }
-  }
-
-  private fun getFormattedDate(pattern: String): String {
-    val current = LocalDateTime.now()
-    val formatter = DateTimeFormatter.ofPattern(pattern)
-    return current.format(formatter)
   }
 
   fun stop() {
