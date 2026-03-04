@@ -2,12 +2,14 @@ package com.minichain.miniassistant.assistant
 
 import android.content.Context
 import android.util.Log
+import com.minichain.miniassistant.Note
 import com.minichain.miniassistant.assistant.speech_to_intent.Intent
 import com.minichain.miniassistant.assistant.speech_to_intent.SpeechToIntentService
 import com.minichain.miniassistant.assistant.speech_to_text.SpeechToTextService
 import com.minichain.miniassistant.assistant.wake_word.WakeWordService
 import com.minichain.miniassistant.bridge.DataBridge
 import com.minichain.miniassistant.bridge.Event
+import java.util.Date
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -34,7 +36,7 @@ class AssistantService(
     scope = scope,
     onWakeWordDetected = {
       scope.launch {
-        DataBridge.events.emit(Event.ConsoleEvent("WAKE WORD: \"Hey, Mini!\" detected"))
+        DataBridge.addConsoleLine("WAKE WORD: \"Hey, Mini!\" detected")
         tonePlayer.play(Tone.AssistantStarted)
         assistantState.emit(AssistantState.SpeechToIntent)
       }
@@ -46,7 +48,7 @@ class AssistantService(
     scope = scope,
     onIntentDetected = { intent ->
       scope.launch {
-        DataBridge.events.emit(Event.ConsoleEvent("INTENT: $intent"))
+        DataBridge.addConsoleLine("INTENT: $intent")
         processIntent(intent)
       }
     }
@@ -58,8 +60,8 @@ class AssistantService(
     onTranscriptionDone = { text ->
       tonePlayer.play(Tone.AssistantStopped)
       scope.launch {
-        DataBridge.events.emit(Event.ConsoleEvent("SPEECH-TO-TEXT: $text"))
-        DataBridge.events.emit(Event.NoteTakenEvent(text))
+        DataBridge.addConsoleLine("SPEECH-TO-TEXT: $text")
+        DataBridge.addNote(Note(Date(), text))
         assistantState.emit(AssistantState.WakeWord)
       }
     }
@@ -73,7 +75,7 @@ class AssistantService(
       .onEach { state ->
         Log.d("ASSISTANT_SERVICE", "state: $state")
         DataBridge.events.emit(Event.AssistantStateUpdate(state))
-        DataBridge.events.emit(Event.ConsoleEvent("Assistant state: $state"))
+        DataBridge.addConsoleLine("Assistant state: $state")
         when (state) {
           AssistantState.WakeWord -> {
             speechToTextService.stop()

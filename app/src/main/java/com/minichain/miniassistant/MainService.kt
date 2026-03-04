@@ -45,6 +45,7 @@ class MainService : Service() {
     startForeground(1, notification)
 
     assistantService.start()
+
   }
 
   private fun stop() {

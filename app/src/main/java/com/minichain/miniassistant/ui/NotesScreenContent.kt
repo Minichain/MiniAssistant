@@ -1,9 +1,16 @@
 package com.minichain.miniassistant.ui
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CardElevation
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -15,9 +22,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.minichain.miniassistant.Note
 import com.minichain.miniassistant.bridge.DataBridge
-import com.minichain.miniassistant.bridge.Event
-import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -32,7 +39,7 @@ fun NotesScreenContent() {
         .fillMaxSize()
     ) {
 
-      var note: String by remember { mutableStateOf("") }
+      var notes: List<Note> by remember { mutableStateOf(emptyList()) }
 
       Text(
         modifier = Modifier
@@ -41,19 +48,51 @@ fun NotesScreenContent() {
         fontSize = 20.sp,
         text = "Notes"
       )
-      Text(
+
+      LazyColumn(
         modifier = Modifier
-          .fillMaxWidth()
-          .weight(0.8f),
-        text = note
-      )
+          .fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+      ) {
+        item {
+          Spacer(modifier = Modifier.height(12.dp))
+        }
+        notes.forEach { note ->
+          item {
+            NoteContent(note)
+          }
+        }
+        item {
+          Spacer(modifier = Modifier.height(12.dp))
+        }
+      }
 
       LaunchedEffect(Unit) {
-        DataBridge.events
-          .filterIsInstance<Event.NoteTakenEvent>()
-          .onEach { note = it.note }
+        DataBridge.notes
+          .filter { it.isNotEmpty() }
+          .onEach { notes = it }
           .launchIn(this)
       }
+    }
+  }
+}
+
+@Composable
+private fun NoteContent(note: Note) {
+  Card(
+    elevation = CardDefaults.cardElevation(
+      defaultElevation = 6.dp
+    )
+  ) {
+    Column(
+      modifier = Modifier.padding(8.dp)
+    ) {
+      Text(
+        text = note.date.toString()
+      )
+      Text(
+        text = note.message
+      )
     }
   }
 }

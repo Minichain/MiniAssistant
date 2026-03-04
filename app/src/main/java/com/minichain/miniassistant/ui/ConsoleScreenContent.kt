@@ -15,15 +15,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.minichain.miniassistant.bridge.DataBridge
-import com.minichain.miniassistant.bridge.Event
-import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 @Composable
 fun ConsoleScreenContent() {
 
-  var consoleEventsList: List<Event.ConsoleEvent> by remember { mutableStateOf(emptyList()) }
+  var consoleEventsList: List<String> by remember { mutableStateOf(emptyList()) }
   val listState = rememberLazyListState()
 
   Surface(
@@ -35,23 +34,22 @@ fun ConsoleScreenContent() {
         .fillMaxSize(),
       state = listState
     ) {
-      consoleEventsList.forEach { consoleEvent ->
+      consoleEventsList.forEach { consoleMessage ->
         item {
-          Text(consoleEvent.message)
+          Text(text = consoleMessage)
         }
       }
     }
   }
 
   LaunchedEffect(Unit) {
-    DataBridge.events
-      .filterIsInstance<Event.ConsoleEvent>()
-      .onEach {
-        println("MAIN_ACTIVITY: ConsoleEvent: ${it.message}")
-        val newList = consoleEventsList.toMutableList()
-        newList.add(it)
-        consoleEventsList = newList
-        listState.animateScrollToItem(newList.size - 1)
+    DataBridge.consoleLines
+      .filter { it.isNotEmpty() }
+      .onEach { consoleLines ->
+        consoleEventsList = consoleLines
+        if (consoleLines.size > 1) {
+          listState.animateScrollToItem(consoleLines.size - 1)
+        }
       }
       .launchIn(this)
   }
