@@ -20,7 +20,7 @@ class BatteryTrackingService(
   }
 
   private var tracking = false
-  private val trackingPeriod = 10000L
+  private val trackingPeriod = 60000L
 
   fun start() {
     val file = File(context.filesDir, "battery_tests/battery_level_${getFormattedDate("yyyy_MM_dd_HH_mm")}.txt")
