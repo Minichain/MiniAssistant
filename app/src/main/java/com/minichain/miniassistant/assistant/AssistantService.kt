@@ -128,4 +128,11 @@ class AssistantService(
       }
     }
   }
+
+  fun stop() {
+    textToSpeechService.stop()
+    wakeWordService.stop()
+    speechToIntentService.stop()
+    speechToTextService.stop()
+  }
 }

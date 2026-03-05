@@ -10,6 +10,7 @@ import android.os.PowerManager
 import android.os.PowerManager.WakeLock
 import android.util.Log
 import com.minichain.miniassistant.assistant.AssistantService
+import com.minichain.miniassistant.battery.BatteryTrackingService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
@@ -23,6 +24,7 @@ class MainService : Service() {
 
   private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
   private val assistantService = AssistantService(this, scope)
+  private val batteryTrackingService = BatteryTrackingService(this, scope)
 
   private lateinit var powerManager: PowerManager
   private lateinit var wakeLock: WakeLock
@@ -55,6 +57,7 @@ class MainService : Service() {
       }
     }
     assistantService.start()
+    batteryTrackingService.start()
   }
 
   private val notificationDismissalReceiver = object : BroadcastReceiver() {
@@ -71,6 +74,8 @@ class MainService : Service() {
     Log.d("MAIN_SERVICE","Destroying MainService...")
     unregisterReceiver(notificationDismissalReceiver)
     wakeLock.release()
+    assistantService.stop()
+    batteryTrackingService.stop()
     super.onDestroy()
   }
 }
