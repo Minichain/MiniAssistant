@@ -114,8 +114,8 @@ class AssistantService(
         tonePlayer.play(Tone.AssistantStopped)
       }
       Intent.TakeNotes -> {
+        tonePlayer.play(Tone.AssistantStarted)
         scope.launch {
-          DataBridge.events.emit(Event.TextToSpeechEvent("Taking notes"))
           assistantState.emit(AssistantState.SpeechToText)
         }
       }
